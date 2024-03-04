@@ -1,0 +1,54 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: media-server-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: MediaServer is the Schema for the mediaservers API
+      displayName: Media Server
+      kind: MediaServer
+      name: mediaservers.media.flussonic.com
+      version: v1alpha1
+  description: Flussonic Media Server operator
+  displayName: MediaServer
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - video
+  - livestreaming
+  - rtmp
+  - rtsp
+  - hls
+  - dash
+  - webrtc
+  links:
+  - name: Media Server Operator
+    url: https://media-server-operator.domain
+  maintainers:
+  - email: m.lapshin@flussonic.com
+    name: Max Lapshin
+  maturity: alpha
+  provider:
+    name: flussonic.com
+    url: https://flussonic.com/media-server/
+  version: 0.0.0
