@@ -1,10 +1,49 @@
-# media-server-operator
-// TODO(user): Add simple overview of use/purpose
+# MediaServer Operator
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+This MediaServer Operator is an implementation of Kubernetes Operator that allows to launch Flussonic Media Server in k8s with a trivial configuration:
 
-## Getting Started
+```
+apiVersion: media.flussonic.com/v1alpha1
+kind: MediaServer
+metadata:
+  name: watcher
+spec:
+  image: flussonic/flussonic:v24.02-107
+  hostPort: 80
+  env:
+    - name: LICENSE_KEY
+      value: "your-license-key"
+```
+
+This Operator will create about 10 different resources and manage them.
+
+
+## Usage
+
+To test on your laptop with `multipass` VM management tool:
+
+```
+./mp-start.sh
+```
+
+On your k8s installation:
+
+```
+kubectl label nodes streamer flussonic.com/streamer=true
+kubectl create secret generic flussonic-license \
+    --from-literal=license_key="${LICENSE_KEY}" \
+    --from-literal=edit_auth="root:password"
+
+
+kubectl apply -f https://flussonic.github.io/media-server-operator/operator.yaml
+kubectl apply -f config/samples/media_v1alpha1_mediaserver.yaml
+```
+
+Then it will run on your server
+
+
+
+# Development of media-server-operator
 
 ### Prerequisites
 - go version v1.20.0+
@@ -13,45 +52,28 @@
 - Access to a Kubernetes v1.11.3+ cluster.
 
 ### To Deploy on the cluster
+
 **Build and push your image to the location specified by `IMG`:**
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/media-server-operator:tag
+make docker-buildx
+make operator.yaml
+cp -f operator.yaml docs/
+git add docs
 ```
 
-**NOTE:** This image ought to be published in the personal registry you specified. 
-And it is required to have access to pull the image from the working environment. 
-Make sure you have the proper permission to the registry if the above commands don’t work.
+**NOTE:** This image ought to be published in the public registry.
 
-**Install the CRDs into the cluster:**
+## Develop locally
 
 ```sh
-make install
+make all install run
 ```
 
-**Deploy the Manager to the cluster with the image specified by `IMG`:**
-
-```sh
-make deploy IMG=<some-registry>/media-server-operator:tag
-```
-
-> **NOTE**: If you encounter RBAC errors, you may need to grant yourself cluster-admin 
-privileges or be logged in as admin.
-
-**Create instances of your solution**
-You can apply the samples (examples) from the config/sample:
+Another tab:
 
 ```sh
 kubectl apply -k config/samples/
-```
-
->**NOTE**: Ensure that the samples has default values to test it out.
-
-### To Uninstall
-**Delete the instances (CRs) from the cluster:**
-
-```sh
-kubectl delete -k config/samples/
 ```
 
 **Delete the APIs(CRDs) from the cluster:**

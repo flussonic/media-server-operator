@@ -29,4 +29,9 @@ kubectl create secret generic flussonic-license \
 
 multipass exec streamer -- sudo mkdir -p /storage
 
+
+kubectl apply -f https://flussonic.github.io/media-server-operator/operator.yaml
+kubectl apply -f config/samples/media_v1alpha1_mediaserver.yaml
+
+
 echo "Streamer ready: http://${plane_ip}"
