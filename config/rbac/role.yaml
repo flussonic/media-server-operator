@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - media.flussonic.com
+  resources:
+  - mediaservers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - media.flussonic.com
+  resources:
+  - mediaservers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - media.flussonic.com
+  resources:
+  - mediaservers/status
+  verbs:
+  - get
+  - patch
+  - update

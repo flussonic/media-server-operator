@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- media_v1alpha1_mediaserver.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

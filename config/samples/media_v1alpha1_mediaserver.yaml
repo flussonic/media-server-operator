@@ -1,0 +1,12 @@
+apiVersion: media.flussonic.com/v1alpha1
+kind: MediaServer
+metadata:
+  labels:
+    app.kubernetes.io/name: mediaserver
+    app.kubernetes.io/instance: mediaserver-sample
+    app.kubernetes.io/part-of: media-server-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: media-server-operator
+  name: mediaserver-sample
+spec:
+  # TODO(user): Add fields here
