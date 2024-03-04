@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: flussonic/media-server-controller
-  newTag: 24.3.1
+  newTag: 24.3.2

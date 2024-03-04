@@ -38,4 +38,11 @@ spec:
       auth_backend vsaas {
         backend http://watcher.default.svc.cluster.local/vsaas/api/camera_auth;
       }
+  volumes:
+  - name: storage
+    mountPath: /storage
+    hostPath:
+      path: /storage
+      type: Directory
+
 

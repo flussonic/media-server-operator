@@ -291,7 +291,7 @@ spec:
   - webrtc
   links:
   - name: Media Server Operator
-    url: https://media-server-operator.domain
+    url: https://flussonic.com/media-server/
   maintainers:
   - email: m.lapshin@flussonic.com
     name: Max Lapshin

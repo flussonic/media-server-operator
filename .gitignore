@@ -28,3 +28,4 @@ go.work
 *.swo
 *~
 k3s.yaml
+operator.yaml

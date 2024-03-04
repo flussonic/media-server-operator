@@ -48,7 +48,11 @@ type MediaServerReconciler struct {
 //+kubebuilder:rbac:groups=media.flussonic.com,resources=mediaservers/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=events,verbs=create;patch
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=apps,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;watch
 
 // For more details, check Reconcile and its Result here:
@@ -280,13 +284,27 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 	optional := false
 
 	configMapping := []corev1.KeyToPath{}
-	configFiles := []corev1.VolumeMount{}
+	streamerVolumeMounts := []corev1.VolumeMount{}
+	streamerVolumes := []corev1.Volume{{
+		Name: configVolName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: configMapName,
+				},
+				Items:       configMapping,
+				DefaultMode: &defaultMode,
+				Optional:    &optional,
+			},
+		},
+	}}
+
 	for k, _ := range configData {
 		configMapping = append(configMapping, corev1.KeyToPath{
 			Key:  k,
 			Path: k,
 		})
-		configFiles = append(configFiles, corev1.VolumeMount{
+		streamerVolumeMounts = append(streamerVolumeMounts, corev1.VolumeMount{
 			Name:      configVolName,
 			MountPath: "/etc/flussonic/flussonic.conf.d/" + k,
 			SubPath:   k,
@@ -294,20 +312,20 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 		})
 	}
 
+	for _, volume := range ms.Spec.Volumes {
+		streamerVolumeMounts = append(streamerVolumeMounts, corev1.VolumeMount{
+			Name:      volume.Name,
+			MountPath: volume.MountPath,
+		})
+		streamerVolumes = append(streamerVolumes, corev1.Volume{
+			Name:         volume.Name,
+			VolumeSource: volume.VolumeSource,
+		})
+
+	}
+
 	spec := corev1.PodSpec{
-		Volumes: []corev1.Volume{{
-			Name: configVolName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: configMapName,
-					},
-					Items:       configMapping,
-					DefaultMode: &defaultMode,
-					Optional:    &optional,
-				},
-			},
-		}},
+		Volumes:            streamerVolumes,
 		NodeSelector:       ms.Spec.NodeSelector,
 		ServiceAccountName: ms.Name + "-sa",
 		Containers: []corev1.Container{{
@@ -350,7 +368,7 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 				dataPort,
 				apiPort,
 			},
-			VolumeMounts: configFiles,
+			VolumeMounts: streamerVolumeMounts,
 		}},
 	}
 
@@ -386,10 +404,11 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 	}
 	ds1.Spec.Template.Spec.Volumes[0].VolumeSource.ConfigMap.Items = configMapping
 	ds1.Spec.Template.Spec.NodeSelector = ms.Spec.NodeSelector
+	ds1.Spec.Template.Spec.Volumes = streamerVolumes
 	ds1.Spec.Template.Spec.Containers[0].Image = ms.Spec.Image
 	ds1.Spec.Template.Spec.Containers[0].Ports[0].HostPort = ms.Spec.HostPort
 	ds1.Spec.Template.Spec.Containers[0].Ports[1].HostPort = ms.Spec.AdminHostPort
-	ds1.Spec.Template.Spec.Containers[0].VolumeMounts = configFiles
+	ds1.Spec.Template.Spec.Containers[0].VolumeMounts = streamerVolumeMounts
 	ds1.Spec.Template.Spec.Containers[0].Env = env
 	err = r.Client.Update(ctx, ds1)
 	if err != nil {
