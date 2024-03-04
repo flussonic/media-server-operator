@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,7 +30,15 @@ type MediaServerSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of MediaServer. Edit mediaserver_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Image string `json:"image,omitempty"`
+	// (Optional) PodEnvVariables is a slice of environment variables that are added to the pods
+	// Default: (empty list)
+	// +optional
+	PodEnvVariables []corev1.EnvVar   `json:"env,omitempty"`
+	NodeSelector    map[string]string `json:"nodeSelector,omitempty" protobuf:"bytes,7,rep,name=nodeSelector"`
+	HostPort        int32             `json:"hostPort,omitempty" protobuf:"varint,2,opt,name=hostPort"`
+	AdminHostPort   int32             `json:"adminHostPort,omitempty" protobuf:"varint,2,opt,name=adminHostPort"`
+	ConfigExtra     map[string]string `json:"configExtra,omitempty" protobuf:"bytes,2,rep,name=configExtra"`
 }
 
 // MediaServerStatus defines the observed state of MediaServer

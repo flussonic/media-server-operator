@@ -5,6 +5,7 @@
 *.dll
 *.so
 *.dylib
+env
 bin/*
 Dockerfile.cross
 
@@ -26,3 +27,4 @@ go.work
 *.swp
 *.swo
 *~
+k3s.yaml
