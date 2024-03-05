@@ -181,14 +181,14 @@ func (r *MediaServerReconciler) deployServiceAccount(ctx context.Context, ms *me
 }
 
 func dsEnv(ms *mediav1.MediaServer) []corev1.EnvVar {
-	env := append(ms.Spec.PodEnvVariables, corev1.EnvVar{
+	env := []corev1.EnvVar{{
 		Name: "FLUSSONIC_HOSTNAME",
 		ValueFrom: &corev1.EnvVarSource{
 			FieldRef: &corev1.ObjectFieldSelector{
 				FieldPath: "spec.nodeName",
 			},
 		},
-	})
+	}}
 
 	env = append(env, corev1.EnvVar{
 		Name:  "FLUSSONIC_SECRETS_STORAGE",
@@ -199,6 +199,8 @@ func dsEnv(ms *mediav1.MediaServer) []corev1.EnvVar {
 		Name:  "DO_NOT_DO_NET_TUNING",
 		Value: "true",
 	})
+
+	env = append(env, ms.Spec.PodEnvVariables...)
 	return env
 }
 
