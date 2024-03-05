@@ -2111,7 +2111,7 @@ spec:
         - --leader-elect
         command:
         - /manager
-        image: flussonic/media-server-controller:24.3.2
+        image: flussonic/media-server-controller:24.3.3
         livenessProbe:
           httpGet:
             path: /healthz
