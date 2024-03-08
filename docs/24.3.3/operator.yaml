@@ -174,8 +174,7 @@ spec:
                 format: int32
                 type: integer
               image:
-                description: Foo is an example field of MediaServer. Edit mediaserver_types.go
-                  to remove/update
+                description: Docker image name
                 type: string
               nodeSelector:
                 additionalProperties:
@@ -1744,6 +1743,8 @@ spec:
                   - name
                   type: object
                 type: array
+            required:
+            - image
             type: object
           status:
             description: MediaServerStatus defines the observed state of MediaServer

@@ -42,8 +42,8 @@ type MediaServerSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of MediaServer. Edit mediaserver_types.go to remove/update
-	Image string `json:"image,omitempty"`
+	// Docker image name
+	Image string `json:"image"`
 	// (Optional) PodEnvVariables is a slice of environment variables that are added to the pods
 	// Default: (empty list)
 	// +optional

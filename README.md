@@ -35,7 +35,7 @@ kubectl create secret generic flussonic-license \
     --from-literal=edit_auth="root:password"
 
 
-kubectl apply -f https://flussonic.github.io/media-server-operator/operator.yaml
+kubectl apply -f https://flussonic.github.io/media-server-operator/latest/operator.yaml
 kubectl apply -f config/samples/media_v1alpha1_mediaserver.yaml
 ```
 
