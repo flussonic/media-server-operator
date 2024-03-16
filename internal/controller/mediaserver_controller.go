@@ -75,26 +75,20 @@ func (r *MediaServerReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
-	retry, err := r.deployServiceAccount(ctx, mediaServer)
-	if retry {
-		return ctrl.Result{Requeue: true}, nil
-	}
-	if err != nil {
-		return ctrl.Result{}, err
+	result, err := r.deployServiceAccount(ctx, mediaServer)
+	if err != nil || result.Requeue {
+		return result, err
 	}
 
-	retry, err = r.deployDaemonSet(ctx, mediaServer)
-	if retry {
-		return ctrl.Result{Requeue: true}, nil
-	}
-	if err != nil {
-		return ctrl.Result{}, err
+	result, err = r.deployDaemonSet(ctx, mediaServer)
+	if err != nil || result.Requeue {
+		return result, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
-func (r *MediaServerReconciler) deployServiceAccount(ctx context.Context, ms *mediav1.MediaServer) (bool, error) {
+func (r *MediaServerReconciler) deployServiceAccount(ctx context.Context, ms *mediav1.MediaServer) (ctrl.Result, error) {
 	serviceAccountName := ms.Name + "-sa"
 	roleName := ms.Name + "-role"
 	roleBindingName := ms.Name + "-rb"
@@ -115,11 +109,11 @@ func (r *MediaServerReconciler) deployServiceAccount(ctx context.Context, ms *me
 		ctrl.SetControllerReference(ms, sa, r.Scheme)
 		err = r.Client.Create(ctx, sa)
 		if err != nil {
-			return false, err
+			return ctrl.Result{}, err
 		}
-		return true, nil
+		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
 	role1 := &rbacv1.Role{}
@@ -142,11 +136,11 @@ func (r *MediaServerReconciler) deployServiceAccount(ctx context.Context, ms *me
 		ctrl.SetControllerReference(ms, role, r.Scheme)
 		err = r.Client.Create(ctx, role)
 		if err != nil {
-			return false, err
+			return ctrl.Result{}, err
 		}
-		return true, nil
+		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
 	rb1 := &rbacv1.RoleBinding{}
@@ -170,14 +164,14 @@ func (r *MediaServerReconciler) deployServiceAccount(ctx context.Context, ms *me
 		ctrl.SetControllerReference(ms, rb, r.Scheme)
 		err = r.Client.Create(ctx, rb)
 		if err != nil {
-			return false, err
+			return ctrl.Result{}, err
 		}
-		return true, nil
+		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
-	return false, nil
+	return ctrl.Result{}, nil
 }
 
 func dsEnv(ms *mediav1.MediaServer) []corev1.EnvVar {
@@ -204,7 +198,7 @@ func dsEnv(ms *mediav1.MediaServer) []corev1.EnvVar {
 	return env
 }
 
-func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1.MediaServer) (bool, error) {
+func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1.MediaServer) (ctrl.Result, error) {
 	secretName := ms.Name + "-license-storage"
 	configMapName := ms.Name + "-configmap"
 	appLabel := ms.Name + "-streamer"
@@ -226,11 +220,11 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 		ctrl.SetControllerReference(ms, ls, r.Scheme)
 		err := r.Client.Create(ctx, ls)
 		if err != nil {
-			return false, err
+			return ctrl.Result{}, err
 		}
-		return true, nil
+		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
 	configData := map[string]string{
@@ -255,17 +249,17 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 		ctrl.SetControllerReference(ms, cm, r.Scheme)
 		err := r.Client.Create(ctx, cm)
 		if err != nil {
-			return false, err
+			return ctrl.Result{}, err
 		}
-		return true, nil
+		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
 	cm1.Data = configData
 	err = r.Client.Update(ctx, cm1)
 	if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
 	labels := map[string]string{"app": appLabel}
@@ -398,11 +392,11 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 		ctrl.SetControllerReference(ms, ds, r.Scheme)
 		err = r.Client.Create(ctx, ds)
 		if err != nil {
-			return false, err
+			return ctrl.Result{}, err
 		}
-		return true, nil
+		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 	ds1.Spec.Template.Spec.Volumes[0].VolumeSource.ConfigMap.Items = configMapping
 	ds1.Spec.Template.Spec.NodeSelector = ms.Spec.NodeSelector
@@ -414,10 +408,10 @@ func (r *MediaServerReconciler) deployDaemonSet(ctx context.Context, ms *mediav1
 	ds1.Spec.Template.Spec.Containers[0].Env = env
 	err = r.Client.Update(ctx, ds1)
 	if err != nil {
-		return false, err
+		return ctrl.Result{}, err
 	}
 
-	return false, nil
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
