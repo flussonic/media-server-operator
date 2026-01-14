@@ -1,0 +1,7 @@
+resources:
+- letsencrypt.yaml
+- postgres.yaml
+- redis.yaml
+- central-config.yaml
+- central.yaml
+- ingress.yaml
