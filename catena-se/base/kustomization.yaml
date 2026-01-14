@@ -1,4 +1,5 @@
 resources:
+- namespace.yaml
 - letsencrypt.yaml
 - postgres.yaml
 - redis.yaml

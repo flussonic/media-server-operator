@@ -21,12 +21,7 @@ spec:
   apiKey:
     value: "0877d9c6-f1f3-4070-a970-3e0e54c41c00"
   provisionerClusterKey: "clusterkey"
-  provisionerSelector: "mediaserver-media-server"
-  streamersConfigURLs:
-    s1:
-      apiUrl: http://s1-streamer-0.s1-headless.catena-se.svc.cluster.local:81
-      privatePayloadUrl: http://s1-streamer-0.s1-headless.catena-se.svc.cluster.local:81
-      publicPayloadUrl: https://s1.my-service.local
+  provisionerSelector: "streamer"
   central:
     replicas: 2
     env:
