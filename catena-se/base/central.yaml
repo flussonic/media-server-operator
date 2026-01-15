@@ -9,17 +9,18 @@ metadata:
     app.kubernetes.io/created-by: central-operator
     app: central
   name: central
-  namespace: catena-se
 spec:
   database:
     value: "postgresql://central:668bfadfd824@postgres:5432/central_db"
   redis:
     value: "redis://redis:6379"
-  apiURL:
-    value: "http://central.catena-se.svc.cluster.local"
   version: "v25.12-17"
   apiKey:
-    value: "0877d9c6-f1f3-4070-a970-3e0e54c41c00"
+    valueFrom: 
+      secretKeyRef:
+        name: api-keys
+        key: config-ext
+        optional: false
   provisionerClusterKey: "clusterkey"
   provisionerSelector: "streamer"
   central:
