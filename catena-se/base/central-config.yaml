@@ -14,7 +14,9 @@ metadata:
   name: api-keys
   namespace: catena-se
 stringData:
-  pgpass: 668bfadfd824
+  pgpass: "668bfadfd824"
+  config-ext: "0877d9c6-f1f3-4070-a970-3e0e54c41c00"
+  cluster-key: "clusterkey"
 ---
 apiVersion: v1
 kind: Secret
