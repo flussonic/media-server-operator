@@ -20,6 +20,31 @@ This Operator will create about 10 different resources and manage them.
 
 ## Usage
 
+
+Как собрать и отладить ветку.
+
+1. В пайплайнах запускаем publish-controller-rolling, это зальет контроллер на докерхаб
+
+```
+export KUBECONFIG=`pwd`/kube.yaml
+touch kube.yaml
+chmod 0600 kube.yaml
+kind create cluster
+make operator.yaml
+# Обрати внимание!!!
+# mkdir -p docs/latest docs/26.1.6-2-gadc4be7
+# /Users/max/Sites/media-server-operator/bin/kustomize build config/default > docs/26.1.6-2-gadc4be7/operator.yaml
+# [ "ml-58393-fix-labels" = "master" ] && cp docs/26.1.6-2-gadc4be7/operator.yaml docs/latest/operator.yaml || true
+# Коммитить этот тег не нужно! Он для разработки!
+kubectl apply -f docs/26.1.6-2-gadc4be7/operator.yaml
+source ./env && kubectl create secret generic flussonic-license \
+    --from-literal=license_key="${LICENSE_KEY}" \
+    --from-literal=edit_auth="root:password"
+kubectl apply -f config/samples/media_v1alpha1_streamer-simple.yaml
+```
+
+
+
 To test on your laptop with `multipass` VM management tool:
 
 ```
@@ -36,10 +61,37 @@ kubectl create secret generic flussonic-license \
 
 
 kubectl apply -f https://flussonic.github.io/media-server-operator/latest/operator.yaml
-kubectl apply -f config/samples/media_v1alpha1_mediaserver.yaml
+kubectl apply -f config/samples/media_v1alpha1_streamer-simple.yaml
 ```
 
 Then it will run on your server
+
+
+## Test
+
+1. Собираем промежуточное обновление: `make deploy`
+
+
+## Release
+
+
+1. Мержим ветку в мастер
+2. Ставим тег:  `git tag -a v26.2.1 -m 'version 26.2.1'`   (тег формата vYY.M.N)
+3. Пушим: `git push --tags`
+4. Теперь руками запускаем джобу `publish-controller` на предыдущем перед тегом коммите. Он окажется с аккурат нужным тегом
+4. Обновляем ассеты:  `make operator.yaml`
+
+Появится что-то типа:
+
+```
+mkdir -p docs/latest docs/26.2.1
+/Users/max/Sites/media-server-operator/bin/kustomize build config/default > docs/26.2.1/operator.yaml
+[ "master" = "master" ] && cp docs/26.2.1/operator.yaml docs/latest/operator.yaml || true
+```
+
+5. Коммитим:  `git add . && git commit -m 'publish 26.2.1' && git push`
+
+
 
 
 
