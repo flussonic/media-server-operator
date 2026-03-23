@@ -90,6 +90,7 @@ mkdir -p docs/latest docs/26.2.1
 ```
 
 5. Коммитим:  `git add . && git commit -m 'publish 26.2.1' && git push`
+6. Теперь делаем джобу `publish-operator`, она сделает пуш на гитхаб
 
 
 
